@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Company Dashboard — PlaceSync</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{ --teal:#0d9488; --teal-dark:#0f766e; --slate:#1e293b; }
+    body { font-family:'Sora',sans-serif; background:#f0fdfa; min-height:100vh; }
+    .sidebar { width:260px;min-height:100vh;background:var(--slate);position:fixed;top:0;left:0;z-index:100;padding:1.5rem 1rem; }
+    .brand { color:#f8fafc;font-size:1.2rem;font-weight:700;padding:.5rem .75rem 1.5rem; }
+    .brand span { color:#5eead4; }
+    .nav-link { color:#94a3b8;border-radius:10px;padding:.65rem .85rem;font-size:.87rem;font-weight:500;transition:all .2s;margin-bottom:2px; }
+    .nav-link:hover,.nav-link.active { background:rgba(94,234,212,.12);color:#ccfbf1; }
+    .nav-link i { width:20px;margin-right:8px; }
+    .main { margin-left:260px;padding:2rem; }
+    .topbar { background:#fff;border-radius:16px;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 8px rgba(0,0,0,.06);margin-bottom:1.5rem; }
+    .stat-card { background:#fff;border-radius:16px;padding:1.5rem;box-shadow:0 1px 8px rgba(0,0,0,.06);text-align:center; }
+    .stat-card .value { font-size:2rem;font-weight:700;color:var(--slate); }
+    .stat-card .label { font-size:.8rem;color:#64748b;font-weight:500;margin-top:4px; }
+    .icon-wrap { width:48px;height:48px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:.75rem; }
+    .card-section { background:#fff;border-radius:16px;padding:1.5rem;box-shadow:0 1px 8px rgba(0,0,0,.06); }
+    .section-title { font-size:1rem;font-weight:700;color:var(--slate);margin-bottom:1rem;display:flex;align-items:center;gap:8px; }
+    .drive-row { border:1px solid #e2e8f0;border-radius:12px;padding:1rem 1.2rem;margin-bottom:.75rem;transition:all .2s; }
+    .drive-row:hover { border-color:#99f6e4;box-shadow:0 4px 16px rgba(13,148,136,.1); }
+    .badge-active { background:#ccfbf1;color:#0f766e;border-radius:8px;font-size:.72rem;font-weight:600;padding:4px 10px; }
+    .badge-closed { background:#f1f5f9;color:#64748b;border-radius:8px;font-size:.72rem;font-weight:600;padding:4px 10px; }
+    .btn-teal { background:var(--teal);color:#fff;border:none;border-radius:10px;font-weight:600;padding:.7rem 1.5rem;transition:all .2s; }
+    .btn-teal:hover { background:var(--teal-dark);color:#fff;transform:translateY(-1px); }
+    table { font-size:.85rem; }
+    .status-pill { border-radius:20px;font-size:.72rem;font-weight:600;padding:4px 12px; }
+    .modal-content { border-radius:20px; }
+    .form-control,.form-select { border-radius:10px;font-size:.88rem; }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="brand"><i class="bi bi-building me-2"></i>Place<span>Sync</span></div>
+  <ul class="nav flex-column">
+    <li><a class="nav-link active" href="#" onclick="showTab('overview')"><i class="bi bi-grid"></i>Overview</a></li>
+    <li><a class="nav-link" href="#" onclick="showTab('drives')"><i class="bi bi-briefcase"></i>My Drives</a></li>
+    <li><a class="nav-link" href="#" onclick="showTab('applicants')"><i class="bi bi-people"></i>Applicants</a></li>
+    <li><a class="nav-link" href="#" onclick="showTab('postDrive')"><i class="bi bi-plus-circle"></i>Post Drive</a></li>
+    <li><a class="nav-link text-danger mt-auto" href="login.html"><i class="bi bi-box-arrow-left"></i>Logout</a></li>
+  </ul>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="fw-bold" style="color:var(--slate)" id="compName">Company Dashboard</div>
+      <div style="font-size:.8rem;color:#64748b" id="compInfo">Loading...</div>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+      <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--teal),#0891b2);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700" id="compInitial">C</div>
+    </div>
+  </div>
+
+  <!-- Overview -->
+  <div id="tab-overview">
+    <div class="row g-3 mb-4">
+      <div class="col-md-3"><div class="stat-card">
+        <div class="icon-wrap" style="background:#ccfbf1"><i class="bi bi-briefcase-fill" style="color:var(--teal)"></i></div>
+        <div class="value" id="statDrives">—</div><div class="label">Total Drives</div>
+      </div></div>
+      <div class="col-md-3"><div class="stat-card">
+        <div class="icon-wrap" style="background:#dbeafe"><i class="bi bi-people-fill" style="color:#2563eb"></i></div>
+        <div class="value" id="statApplicants">—</div><div class="label">Total Applicants</div>
+      </div></div>
+      <div class="col-md-3"><div class="stat-card">
+        <div class="icon-wrap" style="background:#dcfce7"><i class="bi bi-check2-all" style="color:#16a34a"></i></div>
+        <div class="value" id="statSelected">—</div><div class="label">Selected</div>
+      </div></div>
+      <div class="col-md-3"><div class="stat-card">
+        <div class="icon-wrap" style="background:#fef9c3"><i class="bi bi-broadcast" style="color:#d97706"></i></div>
+        <div class="value" id="statActive">—</div><div class="label">Active Drives</div>
+      </div></div>
+    </div>
+    <div class="card-section">
+      <div class="section-title"><i class="bi bi-list-check" style="color:var(--teal)"></i>My Drives Summary</div>
+      <div id="driveSummaryList">Loading...</div>
+    </div>
+  </div>
+
+  <!-- My Drives -->
+  <div id="tab-drives" style="display:none">
+    <div class="card-section">
+      <div class="section-title d-flex justify-content-between">
+        <span><i class="bi bi-briefcase" style="color:var(--teal)"></i> Posted Drives</span>
+        <button class="btn-teal btn" onclick="showTab('postDrive')" style="padding:.45rem 1rem;font-size:.82rem"><i class="bi bi-plus me-1"></i>New Drive</button>
+      </div>
+      <div id="drivesList">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Applicants -->
+  <div id="tab-applicants" style="display:none">
+    <div class="card-section">
+      <div class="section-title"><i class="bi bi-people" style="color:var(--teal)"></i>Drive Applicants</div>
+      <div class="mb-3">
+        <label class="form-label text-muted small fw-600">Select Drive</label>
+        <select class="form-select" id="driveSelector" onchange="loadApplicants()">
+          <option value="">— Select a drive —</option>
+        </select>
+      </div>
+      <table class="table table-hover" id="applicantsTable" style="display:none">
+        <thead style="background:#f0fdfa">
+          <tr><th>Name</th><th>Branch</th><th>CGPA</th><th>Backlogs</th><th>Status</th><th>Applied</th></tr>
+        </thead>
+        <tbody id="applicantBody"></tbody>
+      </table>
+      <div id="applicantEmpty" class="text-muted text-center py-3" style="font-size:.85rem"></div>
+    </div>
+  </div>
+
+  <!-- Post Drive -->
+  <div id="tab-postDrive" style="display:none">
+    <div class="card-section" style="max-width:680px">
+      <div class="section-title"><i class="bi bi-plus-circle" style="color:var(--teal)"></i>Post New Job Drive</div>
+      <div id="driveAlert" class="alert alert-success d-none"></div>
+      <div class="row g-3">
+        <div class="col-6"><label class="form-label text-muted small">Job Title</label>
+          <input class="form-control" id="dTitle" placeholder="Software Engineer"/></div>
+        <div class="col-6"><label class="form-label text-muted small">Job Type</label>
+          <select class="form-select" id="dType"><option>Full-Time</option><option>Internship</option><option>Both</option></select></div>
+        <div class="col-6"><label class="form-label text-muted small">CTC (LPA)</label>
+          <input class="form-control" id="dCtc" type="number" step="0.5" placeholder="12"/></div>
+        <div class="col-6"><label class="form-label text-muted small">Location</label>
+          <input class="form-control" id="dLocation" placeholder="Bangalore"/></div>
+        <div class="col-6"><label class="form-label text-muted small">Min CGPA</label>
+          <input class="form-control" id="dCgpa" type="number" step="0.1" value="6.5"/></div>
+        <div class="col-6"><label class="form-label text-muted small">Max Backlogs Allowed</label>
+          <input class="form-control" id="dBacklogs" type="number" value="0"/></div>
+        <div class="col-12"><label class="form-label text-muted small">Allowed Branches (comma-separated or ALL)</label>
+          <input class="form-control" id="dBranches" placeholder="CSE,IT,ECE" value="CSE,IT,ECE"/></div>
+        <div class="col-6"><label class="form-label text-muted small">Drive Date</label>
+          <input class="form-control" id="dDate" type="date"/></div>
+        <div class="col-6"><label class="form-label text-muted small">Last Date to Apply</label>
+          <input class="form-control" id="dLastDate" type="date"/></div>
+        <div class="col-12"><label class="form-label text-muted small">Job Description</label>
+          <textarea class="form-control" id="dDesc" rows="3" placeholder="Role overview, responsibilities..."></textarea></div>
+        <div class="col-12">
+          <button class="btn-teal btn w-100" onclick="postDrive()"><i class="bi bi-send me-2"></i>Post Drive</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const companyId = localStorage.getItem('userId') || 1;
+
+window.onload = async () => {
+  await loadCompanyProfile();
+  await loadDriveSummary();
+};
+
+async function loadCompanyProfile() {
+  try {
+    const r = await fetch(`/api/companies/${companyId}`);
+    const d = await r.json();
+    if (d.success) {
+      document.getElementById('compName').textContent = d.data.companyName;
+      document.getElementById('compInfo').textContent = `${d.data.industry || 'Industry'} • ${d.data.hrName || 'HR'}`;
+      document.getElementById('compInitial').textContent = d.data.companyName[0];
+    }
+  } catch(e) {}
+}
+
+async function loadDriveSummary() {
+  try {
+    const r = await fetch(`/api/companies/${companyId}/drives`);
+    const d = await r.json();
+    if (d.success) {
+      const drives = d.data;
+      document.getElementById('statDrives').textContent = drives.length;
+      document.getElementById('statActive').textContent = drives.filter(dr => dr.active).length;
+      // Populate selector
+      const sel = document.getElementById('driveSelector');
+      drives.forEach(dr => {
+        const opt = new Option(dr.jobTitle + ' — ' + dr.driveDate, dr.id);
+        sel.appendChild(opt);
+      });
+      // Summary list
+      const el = document.getElementById('driveSummaryList');
+      if (drives.length === 0) { el.innerHTML = '<p class="text-muted" style="font-size:.85rem">No drives posted yet.</p>'; return; }
+      el.innerHTML = drives.slice(0,5).map(dr => `
+        <div class="drive-row d-flex align-items-center justify-content-between">
+          <div>
+            <div class="fw-600" style="color:var(--slate)">${dr.jobTitle}</div>
+            <div style="font-size:.78rem;color:#64748b">${dr.location} • ${dr.jobType} • ₹${dr.ctc} LPA</div>
+          </div>
+          <span class="${dr.active ? 'badge-active' : 'badge-closed'}">${dr.active ? 'Active' : 'Closed'}</span>
+        </div>`).join('');
+    }
+  } catch(e) {}
+}
+
+async function loadDrives() {
+  try {
+    const r = await fetch(`/api/companies/${companyId}/drives`);
+    const d = await r.json();
+    const el = document.getElementById('drivesList');
+    if (d.success && d.data.length) {
+      el.innerHTML = d.data.map(dr => `
+        <div class="drive-row">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <div class="fw-bold" style="color:var(--slate)">${dr.jobTitle}
+                <span class="${dr.active ? 'badge-active' : 'badge-closed'} ms-2">${dr.active ? 'Active' : 'Closed'}</span>
+              </div>
+              <div style="font-size:.8rem;color:#64748b;margin-top:4px">
+                ${dr.jobType} • ${dr.location || 'N/A'} • ₹${dr.ctc} LPA<br/>
+                Min CGPA: ${dr.minCgpa} • Backlogs ≤${dr.maxBacklogs} • Branches: ${dr.allowedBranches}<br/>
+                Drive: ${dr.driveDate} • Deadline: ${dr.lastDateToApply}
+              </div>
+            </div>
+            ${dr.active ? `<button class="btn btn-sm btn-outline-danger" style="border-radius:8px;font-size:.75rem"
+              onclick="closeDrive(${dr.id},this)"><i class="bi bi-x-circle me-1"></i>Close Drive</button>` : ''}
+          </div>
+        </div>`).join('');
+    } else { el.innerHTML = '<p class="text-muted" style="font-size:.85rem">No drives found.</p>'; }
+  } catch(e) {}
+}
+
+async function loadApplicants() {
+  const driveId = document.getElementById('driveSelector').value;
+  if (!driveId) return;
+  try {
+    const r = await fetch(`/api/companies/drives/${driveId}/applicants?size=50`);
+    const d = await r.json();
+    const tbody = document.getElementById('applicantBody');
+    const table = document.getElementById('applicantsTable');
+    const empty = document.getElementById('applicantEmpty');
+    if (d.success && d.data.content.length > 0) {
+      document.getElementById('statApplicants').textContent = d.data.totalElements;
+      document.getElementById('statSelected').textContent =
+        d.data.content.filter(a => a.status === 'SELECTED').length;
+      table.style.display = 'table';
+      empty.textContent = '';
+      tbody.innerHTML = d.data.content.map(a => `
+        <tr>
+          <td><span class="fw-600">${a.student.fullName}</span><br/><span style="font-size:.75rem;color:#64748b">${a.student.email}</span></td>
+          <td>${a.student.branch}</td>
+          <td><span class="badge bg-light text-dark">${a.student.cgpa}</span></td>
+          <td>${a.student.backlogs}</td>
+          <td><span class="status-pill" style="${statusStyle(a.status)}">${a.status}</span></td>
+          <td style="font-size:.78rem">${a.appliedAt?.split('T')[0]}</td>
+        </tr>`).join('');
+    } else {
+      table.style.display = 'none';
+      empty.textContent = 'No applicants for this drive yet.';
+    }
+  } catch(e) {}
+}
+
+async function postDrive() {
+  const payload = {
+    jobTitle: document.getElementById('dTitle').value,
+    jobType: document.getElementById('dType').value,
+    ctc: parseFloat(document.getElementById('dCtc').value),
+    location: document.getElementById('dLocation').value,
+    minCgpa: parseFloat(document.getElementById('dCgpa').value),
+    maxBacklogs: parseInt(document.getElementById('dBacklogs').value),
+    allowedBranches: document.getElementById('dBranches').value,
+    driveDate: document.getElementById('dDate').value,
+    lastDateToApply: document.getElementById('dLastDate').value,
+    jobDescription: document.getElementById('dDesc').value
+  };
+  try {
+    const r = await fetch(`/api/companies/${companyId}/drives`, {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
+    });
+    const d = await r.json();
+    const al = document.getElementById('driveAlert');
+    if (d.success) { al.textContent = '✓ Drive posted successfully!'; al.className = 'alert alert-success'; }
+    else { al.textContent = d.message; al.className = 'alert alert-danger'; }
+    al.classList.remove('d-none');
+  } catch(e) { alert('Failed to post drive.'); }
+}
+
+async function closeDrive(driveId, btn) {
+  if (!confirm('Close this drive?')) return;
+  btn.disabled = true;
+  try {
+    await fetch(`/api/companies/${companyId}/drives/${driveId}/close`, { method:'PATCH' });
+    loadDrives();
+  } catch(e) {}
+}
+
+function statusStyle(status) {
+  const m = { APPLIED:'background:#dbeafe;color:#1d4ed8', ROUND1:'background:#fef9c3;color:#854d0e',
+               ROUND2:'background:#fde8d8;color:#9a3412', SELECTED:'background:#bbf7d0;color:#065f46',
+               REJECTED:'background:#fee2e2;color:#991b1b' };
+  return m[status] || '';
+}
+
+function showTab(name) {
+  ['overview','drives','applicants','postDrive'].forEach(t =>
+    document.getElementById('tab-' + t).style.display = t === name ? 'block' : 'none');
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  if (event && event.target) event.target.closest('.nav-link')?.classList.add('active');
+  if (name === 'drives') loadDrives();
+}
+</script>
+</body>
+</html>

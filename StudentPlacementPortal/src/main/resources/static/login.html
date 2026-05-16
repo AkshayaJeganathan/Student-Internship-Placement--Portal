@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — Student Placement Portal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --indigo: #4f46e5; --indigo-dark: #3730a3; --indigo-light: #e0e7ff;
+      --slate: #1e293b;  --muted: #64748b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Sora', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .login-card {
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 24px;
+      padding: 3rem 2.5rem;
+      width: 100%; max-width: 460px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+      color: #f1f5f9;
+    }
+    .portal-logo { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.5px; }
+    .portal-logo span { color: #818cf8; }
+    .role-tab {
+      background: rgba(255,255,255,0.06);
+      border-radius: 12px; padding: 6px;
+      display: flex; gap: 4px; margin: 1.5rem 0;
+    }
+    .role-tab button {
+      flex: 1; border: none; border-radius: 8px;
+      padding: 10px 8px; font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; transition: all .25s;
+      background: transparent; color: #94a3b8;
+    }
+    .role-tab button.active {
+      background: var(--indigo); color: #fff;
+      box-shadow: 0 4px 15px rgba(79,70,229,0.4);
+    }
+    .form-control {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px; color: #f1f5f9;
+      padding: 0.75rem 1rem; font-size: 0.9rem;
+    }
+    .form-control:focus {
+      background: rgba(255,255,255,0.1);
+      border-color: #818cf8; color: #f1f5f9;
+      box-shadow: 0 0 0 3px rgba(79,70,229,0.25);
+    }
+    .form-control::placeholder { color: #64748b; }
+    .form-label { font-size: 0.82rem; color: #94a3b8; font-weight: 500; margin-bottom: 6px; }
+    .input-group-text {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #64748b; border-radius: 10px 0 0 10px;
+    }
+    .btn-login {
+      background: linear-gradient(135deg, var(--indigo), #7c3aed);
+      border: none; border-radius: 12px; color: #fff;
+      padding: 0.85rem; font-weight: 600; font-size: 0.95rem;
+      width: 100%; transition: all .25s; margin-top: 0.5rem;
+      box-shadow: 0 4px 20px rgba(79,70,229,0.4);
+    }
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(79,70,229,0.5);
+    }
+    .divider { text-align: center; color: #475569; font-size: 0.8rem; margin: 1rem 0; }
+    .register-link { text-align: center; font-size: 0.85rem; color: #94a3b8; }
+    .register-link a { color: #818cf8; text-decoration: none; font-weight: 600; }
+    .alert-danger { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.3); color: #fca5a5; border-radius: 10px; }
+    .badge-role {
+      background: rgba(129,140,248,0.15);
+      color: #a5b4fc; border-radius: 6px;
+      padding: 2px 10px; font-size: 0.75rem; font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+<div class="login-card">
+  <div class="text-center mb-2">
+    <div class="portal-logo"><i class="bi bi-mortarboard-fill me-2"></i>Place<span>Sync</span></div>
+    <p style="color:#64748b;font-size:.82rem;margin-top:6px">Student Internship & Placement Portal</p>
+  </div>
+
+  <!-- Role Tabs -->
+  <div class="role-tab">
+    <button class="active" onclick="switchRole('student',this)"><i class="bi bi-person-fill me-1"></i>Student</button>
+    <button onclick="switchRole('company',this)"><i class="bi bi-building me-1"></i>Company</button>
+    <button onclick="switchRole('admin',this)"><i class="bi bi-shield-fill me-1"></i>Admin</button>
+  </div>
+
+  <div id="roleLabel" class="mb-3 text-center">
+    <span class="badge-role" id="roleBadge">Logging in as Student</span>
+  </div>
+
+  <!-- Alert -->
+  <div id="alertBox" class="alert alert-danger d-none" role="alert"></div>
+
+  <!-- Login Form -->
+  <form id="loginForm">
+    <div class="mb-3">
+      <label class="form-label">Email Address</label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+        <input type="email" id="email" class="form-control" placeholder="your@email.com" required
+               style="border-radius:0 10px 10px 0;border-left:none"/>
+      </div>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Password</label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+        <input type="password" id="password" class="form-control" placeholder="••••••••" required
+               style="border-radius:0 10px 10px 0;border-left:none"/>
+      </div>
+    </div>
+    <button type="submit" class="btn-login">
+      <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+    </button>
+  </form>
+
+  <div class="divider">── or ──</div>
+  <div class="register-link" id="registerSection">
+    New student? <a href="#" onclick="openRegister()">Create Account</a>
+  </div>
+</div>
+
+<!-- Register Modal -->
+<div class="modal fade" id="registerModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background:#1e293b;border:1px solid rgba(255,255,255,.1);color:#f1f5f9;border-radius:20px;">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold">Create Student Account</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="regAlert" class="alert alert-danger d-none"></div>
+        <div class="row g-3">
+          <div class="col-6">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="regName" class="form-control" placeholder="John Doe"/>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Email</label>
+            <input type="email" id="regEmail" class="form-control" placeholder="john@college.edu"/>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Password</label>
+            <input type="password" id="regPass" class="form-control" placeholder="••••••••"/>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Branch</label>
+            <select id="regBranch" class="form-control">
+              <option>CSE</option><option>IT</option><option>ECE</option>
+              <option>EEE</option><option>MECH</option><option>CIVIL</option>
+            </select>
+          </div>
+          <div class="col-6">
+            <label class="form-label">CGPA</label>
+            <input type="number" id="regCgpa" class="form-control" placeholder="8.5" step="0.01" min="0" max="10"/>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Active Backlogs</label>
+            <input type="number" id="regBacklogs" class="form-control" placeholder="0" min="0"/>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Phone</label>
+            <input type="text" id="regPhone" class="form-control" placeholder="+91 9876543210"/>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn" style="background:var(--indigo);color:#fff;border-radius:10px;font-weight:600"
+                onclick="registerStudent()">Register</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+let currentRole = 'student';
+const labels = { student:'Logging in as Student', company:'Logging in as Company', admin:'Logging in as Admin Officer' };
+const dashboards = { student:'student-dashboard.html', company:'company-dashboard.html', admin:'admin-dashboard.html' };
+
+function switchRole(role, btn) {
+  currentRole = role;
+  document.querySelectorAll('.role-tab button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('roleBadge').textContent = labels[role];
+  document.getElementById('registerSection').style.display = role === 'student' ? 'block' : 'none';
+}
+
+document.getElementById('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const box = document.getElementById('alertBox');
+
+  // Demo: simple credential check + role routing
+  // In production: POST /api/auth/login with JWT
+  if (!email || !password) { showAlert(box, 'Please enter email and password.'); return; }
+
+  // Simulate login — replace with real API call
+  try {
+    box.classList.add('d-none');
+    localStorage.setItem('userEmail', email);
+    localStorage.setItem('userRole', currentRole);
+    // Store mock id (replace with actual login API response id)
+    localStorage.setItem('userId', '1');
+    window.location.href = dashboards[currentRole];
+  } catch(err) {
+    showAlert(box, 'Login failed. Please check your credentials.');
+  }
+});
+
+function showAlert(el, msg) { el.textContent = msg; el.classList.remove('d-none'); }
+
+function openRegister() { new bootstrap.Modal(document.getElementById('registerModal')).show(); }
+
+async function registerStudent() {
+  const payload = {
+    fullName: document.getElementById('regName').value,
+    email:    document.getElementById('regEmail').value,
+    password: document.getElementById('regPass').value,
+    branch:   document.getElementById('regBranch').value,
+    cgpa:     parseFloat(document.getElementById('regCgpa').value),
+    backlogs: parseInt(document.getElementById('regBacklogs').value) || 0,
+    phone:    document.getElementById('regPhone').value
+  };
+  const alert = document.getElementById('regAlert');
+  try {
+    const res = await fetch('/api/students/register', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
+      showAlert(document.getElementById('alertBox'), '✓ Registration successful! Please login.');
+      document.getElementById('alertBox').className = 'alert alert-success';
+    } else { showAlert(alert, data.message || 'Registration failed.'); }
+  } catch(e) { showAlert(alert, 'Network error. Is the server running?'); }
+}
+</script>
+</body>
+</html>

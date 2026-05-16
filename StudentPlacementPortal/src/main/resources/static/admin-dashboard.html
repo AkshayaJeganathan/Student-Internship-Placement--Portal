@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Admin Dashboard — PlaceSync</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{ --amber:#b45309; --amber-l:#fef3c7; --rose:#be123c; --slate:#1e293b; --brand:#f59e0b; }
+    body { font-family:'Sora',sans-serif; background:#fffbeb; min-height:100vh; }
+    .sidebar { width:260px;min-height:100vh;background:var(--slate);position:fixed;top:0;left:0;z-index:100;padding:1.5rem 1rem; }
+    .brand { color:#f8fafc;font-size:1.2rem;font-weight:700;padding:.5rem .75rem 1.5rem; }
+    .brand span { color:#fcd34d; }
+    .nav-link { color:#94a3b8;border-radius:10px;padding:.65rem .85rem;font-size:.87rem;font-weight:500;transition:all .2s;margin-bottom:2px; }
+    .nav-link:hover,.nav-link.active { background:rgba(252,211,77,.1);color:#fde68a; }
+    .nav-link i { width:20px;margin-right:8px; }
+    .main { margin-left:260px;padding:2rem; }
+    .topbar { background:#fff;border-radius:16px;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 8px rgba(0,0,0,.06);margin-bottom:1.5rem; }
+    .stat-card { background:#fff;border-radius:16px;padding:1.5rem;box-shadow:0 1px 8px rgba(0,0,0,.06); }
+    .stat-card .value { font-size:2.2rem;font-weight:700;color:var(--slate); }
+    .stat-card .label { font-size:.8rem;color:#64748b;font-weight:500; }
+    .stat-card .delta { font-size:.75rem;margin-top:4px; }
+    .icon-wrap { width:48px;height:48px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:.75rem; }
+    .card-section { background:#fff;border-radius:16px;padding:1.5rem;box-shadow:0 1px 8px rgba(0,0,0,.06); }
+    .section-title { font-size:1rem;font-weight:700;color:var(--slate);margin-bottom:1rem;display:flex;align-items:center;gap:8px; }
+    table { font-size:.84rem; }
+    .status-sel { border-radius:8px;border:1px solid #e2e8f0;padding:4px 10px;font-size:.78rem;font-weight:600;cursor:pointer; }
+    .progress-bar-h { height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden; }
+    .progress-fill-amber { height:100%;background:linear-gradient(90deg,#f59e0b,#ef4444);border-radius:4px;transition:width .6s; }
+    .badge-sm { border-radius:8px;font-size:.72rem;font-weight:600;padding:4px 10px; }
+    .modal-content { border-radius:20px; }
+    .form-control,.form-select { border-radius:10px;font-size:.88rem; }
+    .btn-amber { background:#f59e0b;color:#fff;border:none;border-radius:10px;font-weight:600;padding:.7rem 1.5rem;transition:all .2s; }
+    .btn-amber:hover { background:#d97706;color:#fff; }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="brand"><i class="bi bi-shield-fill-check me-2"></i>Place<span>Sync</span> Admin</div>
+  <ul class="nav flex-column">
+    <li><a class="nav-link active" href="#" onclick="showTab('overview')"><i class="bi bi-grid"></i>Dashboard</a></li>
+    <li><a class="nav-link" href="#" onclick="showTab('applications')"><i class="bi bi-file-earmark-check"></i>Applications</a></li>
+    <li><a class="nav-link" href="#" onclick="showTab('students')"><i class="bi bi-mortarboard"></i>Students</a></li>
+    <li><a class="nav-link" href="#" onclick="showTab('drives')"><i class="bi bi-briefcase"></i>All Drives</a></li>
+    <li><a class="nav-link text-danger mt-auto" href="login.html"><i class="bi bi-box-arrow-left"></i>Logout</a></li>
+  </ul>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="fw-bold" style="color:var(--slate)">Placement Officer Dashboard</div>
+      <div style="font-size:.8rem;color:#64748b" id="adminSubtitle">Loading stats...</div>
+    </div>
+    <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:1.1rem">A</div>
+  </div>
+
+  <!-- Overview -->
+  <div id="tab-overview">
+    <div class="row g-3 mb-4">
+      <div class="col-md-3 col-6"><div class="stat-card">
+        <div class="icon-wrap" style="background:#fef9c3"><i class="bi bi-mortarboard-fill" style="color:#d97706"></i></div>
+        <div class="value" id="s1">—</div><div class="label">Total Students</div>
+      </div></div>
+      <div class="col-md-3 col-6"><div class="stat-card">
+        <div class="icon-wrap" style="background:#dcfce7"><i class="bi bi-trophy-fill" style="color:#16a34a"></i></div>
+        <div class="value" id="s2">—</div><div class="label">Students Placed</div>
+        <div class="delta text-success" id="s2p">— % placement rate</div>
+      </div></div>
+      <div class="col-md-3 col-6"><div class="stat-card">
+        <div class="icon-wrap" style="background:#dbeafe"><i class="bi bi-building-fill" style="color:#2563eb"></i></div>
+        <div class="value" id="s3">—</div><div class="label">Companies</div>
+      </div></div>
+      <div class="col-md-3 col-6"><div class="stat-card">
+        <div class="icon-wrap" style="background:#fce7f3"><i class="bi bi-broadcast" style="color:#be185d"></i></div>
+        <div class="value" id="s4">—</div><div class="label">Active Drives</div>
+      </div></div>
+    </div>
+
+    <!-- Placement Rate Bar -->
+    <div class="card-section mb-4">
+      <div class="section-title"><i class="bi bi-bar-chart-fill" style="color:#f59e0b"></i>Placement Progress</div>
+      <div class="d-flex justify-content-between" style="font-size:.82rem;color:#64748b;margin-bottom:6px">
+        <span>Students Placed</span><span id="placedLabel">0 / 0</span>
+      </div>
+      <div class="progress-bar-h">
+        <div class="progress-fill-amber" id="placedBar" style="width:0%"></div>
+      </div>
+      <div class="row g-3 mt-3">
+        <div class="col-4 text-center">
+          <div style="font-size:1.5rem;font-weight:700;color:#2563eb" id="s5">—</div>
+          <div style="font-size:.78rem;color:#64748b">Total Applications</div>
+        </div>
+        <div class="col-4 text-center">
+          <div style="font-size:1.5rem;font-weight:700;color:#16a34a" id="s6">—</div>
+          <div style="font-size:.78rem;color:#64748b">Offers Given</div>
+        </div>
+        <div class="col-4 text-center">
+          <div style="font-size:1.5rem;font-weight:700;color:#dc2626" id="s7">—</div>
+          <div style="font-size:.78rem;color:#64748b">Rejected</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Applications -->
+  <div id="tab-applications" style="display:none">
+    <div class="card-section">
+      <div class="section-title"><i class="bi bi-file-earmark-check" style="color:#f59e0b"></i>All Applications — Manage Status</div>
+      <table class="table table-hover">
+        <thead style="background:#fffbeb">
+          <tr><th>Student</th><th>Drive / Company</th><th>Branch</th><th>CGPA</th><th>Status</th><th>Remarks</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="appBody"><tr><td colspan="7" class="text-center text-muted">Loading...</td></tr></tbody>
+      </table>
+      <div class="d-flex justify-content-between mt-2">
+        <button class="btn btn-sm btn-outline-secondary" onclick="changeAppPage(-1)"><i class="bi bi-chevron-left"></i> Prev</button>
+        <span style="font-size:.82rem;color:#64748b" id="appPageInfo"></span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="changeAppPage(1)">Next <i class="bi bi-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Students -->
+  <div id="tab-students" style="display:none">
+    <div class="card-section">
+      <div class="section-title"><i class="bi bi-mortarboard" style="color:#f59e0b"></i>All Registered Students</div>
+      <table class="table table-hover">
+        <thead style="background:#fffbeb">
+          <tr><th>#</th><th>Name</th><th>Email</th><th>Branch</th><th>CGPA</th><th>Backlogs</th><th>Status</th></tr>
+        </thead>
+        <tbody id="studentBody"><tr><td colspan="7" class="text-center text-muted">Loading...</td></tr></tbody>
+      </table>
+      <div class="d-flex justify-content-between mt-2">
+        <button class="btn btn-sm btn-outline-secondary" onclick="changeStuPage(-1)"><i class="bi bi-chevron-left"></i> Prev</button>
+        <span style="font-size:.82rem;color:#64748b" id="stuPageInfo"></span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="changeStuPage(1)">Next <i class="bi bi-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drives -->
+  <div id="tab-drives" style="display:none">
+    <div class="card-section">
+      <div class="section-title"><i class="bi bi-briefcase" style="color:#f59e0b"></i>All Job Drives</div>
+      <table class="table table-hover">
+        <thead style="background:#fffbeb">
+          <tr><th>Company</th><th>Role</th><th>Type</th><th>CTC</th><th>Min CGPA</th><th>Drive Date</th><th>Status</th></tr>
+        </thead>
+        <tbody id="driveBody"><tr><td colspan="7" class="text-center text-muted">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Status Update Modal -->
+<div class="modal fade" id="statusModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0"><h5 class="modal-title fw-bold">Update Application Status</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="modalAppId"/>
+        <div class="mb-3"><label class="form-label fw-600">New Status</label>
+          <select class="form-select" id="modalStatus">
+            <option value="APPLIED">Applied</option>
+            <option value="ROUND1">Round 1 — In Progress</option>
+            <option value="ROUND2">Round 2 — In Progress</option>
+            <option value="SELECTED">Selected ✓</option>
+            <option value="REJECTED">Rejected</option>
+          </select></div>
+        <div class="mb-3"><label class="form-label fw-600">Remarks</label>
+          <textarea class="form-control" id="modalRemarks" rows="2" placeholder="Optional notes..."></textarea></div>
+        <div class="mb-3"><label class="form-label fw-600">Upload Offer Letter (if Selected)</label>
+          <input type="file" class="form-control" id="modalOffer" accept=".pdf,.doc,.docx"/></div>
+      </div>
+      <div class="modal-footer border-0">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn-amber btn" onclick="submitStatusUpdate()"><i class="bi bi-save me-1"></i>Update</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+let appPage = 0, appTotalPages = 0;
+let stuPage = 0, stuTotalPages = 0;
+
+window.onload = () => { loadStats(); };
+
+async function loadStats() {
+  try {
+    const r = await fetch('/api/admin/stats');
+    const d = await r.json();
+    if (d.success) {
+      const s = d.data;
+      document.getElementById('s1').textContent = s.totalStudents;
+      document.getElementById('s2').textContent = s.placedStudents;
+      document.getElementById('s2p').textContent = `${s.placementPercentage}% placement rate`;
+      document.getElementById('s3').textContent = s.totalCompanies;
+      document.getElementById('s4').textContent = s.activeDrives;
+      document.getElementById('s5').textContent = s.totalApplications;
+      document.getElementById('s6').textContent = s.selectedApplications;
+      document.getElementById('s7').textContent = s.rejectedApplications;
+      document.getElementById('placedLabel').textContent = `${s.placedStudents} / ${s.totalStudents}`;
+      document.getElementById('placedBar').style.width = `${s.placementPercentage}%`;
+      document.getElementById('adminSubtitle').textContent =
+        `${s.totalDrives} total drives • ${s.totalApplications} applications`;
+    }
+  } catch(e) {}
+}
+
+async function loadApplications() {
+  try {
+    const r = await fetch(`/api/admin/applications?page=${appPage}&size=10`);
+    const d = await r.json();
+    const tbody = document.getElementById('appBody');
+    if (d.success) {
+      appTotalPages = d.data.totalPages;
+      document.getElementById('appPageInfo').textContent = `Page ${appPage+1} of ${appTotalPages || 1}`;
+      if (d.data.content.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No applications found.</td></tr>'; return; }
+      tbody.innerHTML = d.data.content.map(a => `
+        <tr>
+          <td><span class="fw-600">${a.student.fullName}</span><br/><span style="font-size:.72rem;color:#94a3b8">${a.student.email}</span></td>
+          <td>${a.jobDrive.jobTitle}<br/><span style="font-size:.72rem;color:#94a3b8">${a.jobDrive.company.companyName}</span></td>
+          <td>${a.student.branch}</td>
+          <td>${a.student.cgpa}</td>
+          <td><span class="badge-sm ${statusBadge(a.status)}">${a.status}</span></td>
+          <td style="font-size:.75rem;color:#64748b;max-width:120px;overflow:hidden">${a.remarks || '—'}</td>
+          <td><button class="btn btn-sm btn-outline-warning" style="border-radius:8px;font-size:.75rem"
+               onclick="openModal(${a.id}, '${a.status}')"><i class="bi bi-pencil me-1"></i>Update</button></td>
+        </tr>`).join('');
+    }
+  } catch(e) {}
+}
+
+async function loadStudents() {
+  try {
+    const r = await fetch(`/api/admin/students?page=${stuPage}&size=10`);
+    const d = await r.json();
+    const tbody = document.getElementById('studentBody');
+    if (d.success) {
+      stuTotalPages = d.data.totalPages;
+      document.getElementById('stuPageInfo').textContent = `Page ${stuPage+1} of ${stuTotalPages || 1}`;
+      tbody.innerHTML = d.data.content.map((s, i) => `
+        <tr>
+          <td style="color:#94a3b8">${stuPage*10 + i + 1}</td>
+          <td><span class="fw-600">${s.fullName}</span></td>
+          <td style="font-size:.78rem">${s.email}</td>
+          <td>${s.branch}</td>
+          <td><span class="badge bg-light text-dark">${s.cgpa}</span></td>
+          <td>${s.backlogs === 0 ? '<span style="color:#16a34a">0</span>' : `<span style="color:#dc2626">${s.backlogs}</span>`}</td>
+          <td>${s.placed ? '<span class="badge-sm" style="background:#dcfce7;color:#166534">Placed</span>'
+                         : '<span class="badge-sm" style="background:#f1f5f9;color:#64748b">Seeking</span>'}</td>
+        </tr>`).join('');
+    }
+  } catch(e) {}
+}
+
+async function loadAdminDrives() {
+  try {
+    const r = await fetch('/api/admin/drives?size=50');
+    const d = await r.json();
+    const tbody = document.getElementById('driveBody');
+    if (d.success) {
+      tbody.innerHTML = d.data.content.map(dr => `
+        <tr>
+          <td><span class="fw-600">${dr.company.companyName}</span></td>
+          <td>${dr.jobTitle}</td>
+          <td>${dr.jobType}</td>
+          <td>₹${dr.ctc} LPA</td>
+          <td>${dr.minCgpa}</td>
+          <td>${dr.driveDate}</td>
+          <td>${dr.active ? '<span class="badge-sm" style="background:#ccfbf1;color:#0f766e">Active</span>'
+                          : '<span class="badge-sm" style="background:#f1f5f9;color:#64748b">Closed</span>'}</td>
+        </tr>`).join('');
+    }
+  } catch(e) {}
+}
+
+function openModal(appId, currentStatus) {
+  document.getElementById('modalAppId').value = appId;
+  document.getElementById('modalStatus').value = currentStatus;
+  document.getElementById('modalRemarks').value = '';
+  new bootstrap.Modal(document.getElementById('statusModal')).show();
+}
+
+async function submitStatusUpdate() {
+  const appId   = document.getElementById('modalAppId').value;
+  const status  = document.getElementById('modalStatus').value;
+  const remarks = document.getElementById('modalRemarks').value;
+  const offer   = document.getElementById('modalOffer').files[0];
+  try {
+    const r = await fetch(`/api/admin/applications/${appId}/status?status=${status}&remarks=${encodeURIComponent(remarks)}`, { method:'PATCH' });
+    const d = await r.json();
+    if (d.success && offer) {
+      const fd = new FormData(); fd.append('file', offer);
+      await fetch(`/api/admin/applications/${appId}/offer-letter`, { method:'POST', body:fd });
+    }
+    bootstrap.Modal.getInstance(document.getElementById('statusModal')).hide();
+    loadApplications();
+    loadStats();
+  } catch(e) { alert('Update failed.'); }
+}
+
+function changeAppPage(delta) {
+  const n = appPage + delta;
+  if (n < 0 || n >= appTotalPages) return;
+  appPage = n; loadApplications();
+}
+
+function changeStuPage(delta) {
+  const n = stuPage + delta;
+  if (n < 0 || n >= stuTotalPages) return;
+  stuPage = n; loadStudents();
+}
+
+function showTab(name) {
+  ['overview','applications','students','drives'].forEach(t =>
+    document.getElementById('tab-' + t).style.display = t === name ? 'block' : 'none');
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  if (event && event.target) event.target.closest('.nav-link')?.classList.add('active');
+  if (name === 'applications') loadApplications();
+  if (name === 'students') loadStudents();
+  if (name === 'drives') loadAdminDrives();
+}
+
+function statusBadge(s) {
+  const m = { APPLIED:'badge-applied', ROUND1:'badge-round1', ROUND2:'badge-round2',
+               SELECTED:'badge-selected', REJECTED:'badge-rejected' };
+  return m[s] || '';
+}
+// shared badge classes
+const style = document.createElement('style');
+style.textContent = `.badge-applied{background:#dbeafe;color:#1d4ed8}.badge-round1{background:#fef9c3;color:#854d0e}.badge-round2{background:#fde8d8;color:#9a3412}.badge-selected{background:#bbf7d0;color:#065f46}.badge-rejected{background:#fee2e2;color:#991b1b}`;
+document.head.appendChild(style);
+</script>
+</body>
+</html>
